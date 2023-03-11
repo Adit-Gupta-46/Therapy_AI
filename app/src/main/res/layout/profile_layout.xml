@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ProfileActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/toolbar"
+        android:background="@android:color/white"
+        android:elevation="@dimen/toolbar_elevation"
+        app:title="@string/profile_title"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <TextView
+        android:id="@+id/name_label"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/box_height"
+        android:layout_marginStart="@dimen/side_margin"
+        android:layout_marginTop="@dimen/top_bottom_margin"
+        android:text="@string/name_label"
+        android:textSize="@dimen/large_heading"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"/>
+    <EditText
+        android:id="@+id/name_text_box"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/box_height"
+        android:layout_marginEnd="@dimen/side_margin"
+        android:layout_marginTop="@dimen/top_bottom_margin"
+        android:gravity="center_vertical"
+        android:hint="@string/name_text_hint"
+        android:textColorHint="@color/colorPrimary"
+        android:backgroundTint="@color/colorPrimary"
+        android:inputType="textPersonName"
+        android:padding="@dimen/top_bottom_margin"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toEndOf="@id/name_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:id="@+id/age_label"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/box_height"
+        android:layout_marginStart="@dimen/side_margin"
+        android:layout_marginTop="@dimen/normal_text"
+        android:text="@string/age_label"
+        android:textSize="@dimen/large_heading"
+        app:layout_constraintTop_toBottomOf="@id/name_label"
+        app:layout_constraintStart_toStartOf="parent"/>
+    <EditText
+        android:id="@+id/age_text_box"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/box_height"
+        android:layout_marginEnd="@dimen/side_margin"
+        android:layout_marginTop="@dimen/normal_text"
+        android:gravity="center_vertical"
+        android:hint="@string/age_text_hint"
+        android:textColorHint="@color/colorPrimary"
+        android:backgroundTint="@color/colorPrimary"
+        android:inputType="number"
+        android:padding="@dimen/top_bottom_margin"
+        app:layout_constraintTop_toBottomOf="@id/name_text_box"
+        app:layout_constraintStart_toEndOf="@id/age_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:textColor="@android:color/black" />
+
+    <TextView
+        android:id="@+id/struggled_label"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/box_height"
+        android:layout_margin="@dimen/normal_text"
+        android:text="@string/select_struggles_label"
+        android:textSize="@dimen/large_heading"
+        app:layout_constraintTop_toBottomOf="@id/age_label"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+
+    <GridLayout
+        android:id="@+id/struggle_options"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/struggled_label"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
+        android:layout_margin="@dimen/side_margin"
+        android:columnCount="3"
+        android:rowCount="3"
+        android:background="@color/transparent">
+        <TextView
+            android:text="@string/struggle_1"
+            android:layout_row="0"
+            android:layout_column="0"
+            style="@style/StruggleButtonTheme"/>
+
+        <TextView
+            android:text="@string/struggle_2"
+            android:layout_row="0"
+            android:layout_column="1"
+            style="@style/StruggleButtonTheme"/>
+
+        <TextView
+            android:text="@string/struggle_3"
+            android:layout_row="0"
+            android:layout_column="2"
+            style="@style/StruggleButtonTheme"/>
+
+        <TextView
+            android:text="@string/struggle_4"
+            android:layout_row="1"
+            android:layout_column="0"
+            style="@style/StruggleButtonTheme"/>
+
+        <TextView
+            android:text="@string/struggle_5"
+            android:layout_row="1"
+            android:layout_column="1"
+            style="@style/StruggleButtonTheme"/>
+
+        <TextView
+            android:text="@string/struggle_6"
+            android:layout_row="1"
+            android:layout_column="2"
+            style="@style/StruggleButtonTheme"/>
+
+        <TextView
+            android:text="@string/struggle_7"
+            android:layout_row="2"
+            android:layout_column="0"
+            style="@style/StruggleButtonTheme"/>
+
+        <TextView
+            android:text="@string/struggle_8"
+            android:layout_row="2"
+            android:layout_column="1"
+            style="@style/StruggleButtonTheme"/>
+
+        <TextView
+            android:text="@string/struggle_9"
+            android:layout_row="2"
+            android:layout_column="2"
+            style="@style/StruggleButtonTheme"/>
+
+    </GridLayout>
+
+    <cse340.finalproject.TabView
+        android:id="@+id/bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@color/colorPrimary"
+        app:itemIconTint="@color/white"
+        app:itemTextColor="@color/white"
+        app:menu="@menu/bottom_nav"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

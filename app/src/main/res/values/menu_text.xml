@@ -1,0 +1,12 @@
+<resources>
+<!--    Use the same names as bottom_nav, at the beginning of this file, for ALT text -->
+    <string name="tab_demo">Open Demo tab</string>
+    <string name="tab_static_images">Open Static Images tab</string>
+    <string name="tab_captioned_images">Open Captioned Images tab</string>
+    <string name="tab_two_column">Open Two Column tab</string>
+    <string name="tab_custom_interface">Open Custom Interface tab</string>
+    <string name="accessibility_tab_format_selected">Tab: %s</string>
+    <string name="accessibility_tab_format">Tab %s</string>
+    <string name="accessible_tab">Contains %d tabs; number %d is the current tab </string>
+<!--    <string name="accessible_tab_unchecked">Contains %d tabs; none are selected</string>-->
+</resources>

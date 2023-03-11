@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/top_bottom_margin"
+    android:layout_marginTop="@dimen/side_margin">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/left_message_card"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="@dimen/message_corner_radius"
+        app:cardElevation="@dimen/message_padding"
+        app:cardBackgroundColor="@color/light_grey"
+        app:cardPreventCornerOverlap="false"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/left_message_box"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/left_message_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sample_text"
+                android:layout_marginBottom="@dimen/message_top_padding"
+                android:maxWidth="@dimen/max_message_width"
+                android:paddingLeft="@dimen/message_padding"
+                android:paddingTop="@dimen/message_top_padding"
+                android:paddingRight="@dimen/message_padding"
+                android:textColor="@color/black"
+                android:textSize="@dimen/message_text" />
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

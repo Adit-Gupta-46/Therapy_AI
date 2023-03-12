@@ -17,9 +17,12 @@
     <string name="speech_error_8">RecognitionService busy.</string>
     <string name="speech_error_9">Insufficient permissions.</string>
     <string name="speech_error_10">Too many requests from the same client.</string>
-    <string name="speech_error_11">Server has been disconnected, e.g. because the app has crashed.</string>
-    <string name="speech_error_12">Requested language is not available to be used with the current recognizer.</string>
-    <string name="speech_error_13">Requested language is supported, but not available currently (e.g. not downloaded yet).</string>
+    <string name="speech_error_11">Server has been disconnected, e.g. because the app has
+        crashed.</string>
+    <string name="speech_error_12">Requested language is not available to be used with the current
+        recognizer.</string>
+    <string name="speech_error_13">Requested language is supported, but not available currently
+        (e.g. not downloaded yet).</string>
     <string name="speech_error_unknown">Unknown error occurred.</string>
     <string name="name_label">Name:</string>
     <string name="age_label">Age:</string>
@@ -35,24 +38,55 @@
     <string name="struggle_7">Financial Issues</string>
     <string name="struggle_8">Relationship Issues</string>
     <string name="struggle_9">Other</string>
-    <string name="name_and_age_requirement">Both nickname and age need to be filled out to chat with AI therapist</string>
-    <string name="adult_age_requirement">User must be age 18 or older to chat with AI therapist</string>
-    <string name="topic_selection_requirement">Please select a struggle/topic for the AI therapist</string>
+    <string name="name_and_age_requirement">Both nickname and age need to be filled out to chat
+        with AI therapist</string>
+    <string name="adult_age_requirement">User must be age 18 or older to chat with AI
+        therapist</string>
+    <string name="topic_selection_requirement">Please select a struggle/topic for the AI
+        therapist</string>
     <string name="error_tag">CSE340</string>
     <string name="unrecognized_nav_error">Unrecognized nav item selected: </string>
-    <string name="gpt_prompt">You\'re now a therapist for a client named %s. %s describe themselves struggling with \"%s\". %s is asking you \"%s\". If this is something you can answer with, give the patient some help and tips. Otherwise, state you\'re a therapist but are happy to help.:</string>
+    <string name="gpt_prompt">You\'re now a therapist for a client named %s. %s describe
+        themselves struggling with \"%s\". %s is asking you \"%s\". If this is something
+        you can answer with, give the patient some help and tips. Otherwise, state you\'re
+        a therapist but are happy to help.:</string>
     <string name="typing_message">Typing...</string>
     <string name="failed_response">Failed to load response due to %s</string>
-    <string name="microphone_justification">Recording audio with microphone is required for Speech-To-Text-Translation!</string>
+    <string name="microphone_justification">Recording audio with microphone is required for
+        Speech-To-Text-Translation!</string>
     <string name="welcome_to_therapy_ai">Welcome to Therapy AI!</string>
     <string name="how_to_use_header">How to Use:</string>
-    <string name="how_to_use_description">To use Therapy AI, you\'ll enter some basic information about yourself to give the therapist context. You can then start a chat session with our AI therapist (ChatGPT) to discuss any issues that are on your mind. The AI will ask you questions to help guide the conversation, and will provide responses based on machine learning algorithms.</string>
+    <string name="how_to_use_description">To use Therapy AI, you\'ll enter some basic information
+        about yourself to give the therapist context. You can then start a chat session with our
+        AI therapist (ChatGPT) to discuss any issues that are on your mind. The AI will ask you
+        questions to help guide the conversation, and will provide responses based on machine
+        learning algorithms.</string>
     <string name="purpose_header">Purpose:</string>
-    <string name="purpose_description">Our app is an experiment to see how users feel talking to an AI about personal issues, and explore the ethical concerns about this type of service.</string>
+    <string name="purpose_description">Our app is an experiment to see how users feel talking to
+        an AI about personal issues, and explore the ethical concerns about this type of
+        service.</string>
     <string name="liability_header">️Liability: ⚠️⚠️⚠️</string>
-    <string name="liability_description">Please note that the AI\'s responses are not intended to be taken as professional advice. Using Therapy AI is completely optional and at your own risk. We assume no responsibility for any advice or guidance provided by the app. We hope that you find this app interesting and useful, and we welcome any feedback or suggestions you may have. Thank you for trying Therapy AI!</string>
+    <string name="liability_description">Please note that the AI\'s responses are not intended
+        to be taken as professional advice. Using Therapy AI is completely optional and at your
+        own risk. We assume no responsibility for any advice or guidance provided by the app. We
+        hope that you find this app interesting and useful, and we welcome any feedback or
+        suggestions you may have. Thank you for trying Therapy AI!</string>
     <string name="type_your_message">Type your message</string>
     <string name="microphone_for_text_to_speech">Microphone for text-to-speech</string>
     <string name="send_message">Send message</string>
     <string name="sample_text">Sample Text</string>
+    <string name="message_required">Please enter a message to send</string>
+    <string name="first_message">Please enter a message to get started</string>
+    <string name="tab_profile">tab_profile</string>
+    <string name="tab_chat">tab_chat</string>
+    <string name="profile">profile</string>
+    <string name="chat">chat</string>
+    <string name="about">about</string>
+    <string name="credits">Credits:</string>
+    <string name="credits_description">This app utilizes the OKHttp library, which has been
+        added to gradle. This library is developed by Square and is regarded to be secure, from
+        my research. It supports https URLs and includes verification of the remote webserver with
+        certificates and the privacy of data exchanged with strong ciphers. The gpt functionality
+        was heavily inspired by https://github.com/TheoKanning/openai-java</string>
+
 </resources>

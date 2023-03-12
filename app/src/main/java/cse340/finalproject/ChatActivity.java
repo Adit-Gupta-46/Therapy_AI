@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.accessibility.AccessibilityEvent;
 import android.widget.*;
 import android.speech.*;
 
@@ -25,8 +26,13 @@ import java.util.concurrent.*;
 import okhttp3.*;
 import org.json.*;
 
+/**
+ The ChatActivity class represents the activity for the "Chat" section of the app, extending
+ the AppCompatActivity class
+ */
 public class ChatActivity extends AppCompatActivity {
 
+    // UI elements
     private EditText messageBox;
     private RecyclerView recyclerView;
     private MessagesAdapter messageAdapter;
@@ -34,42 +40,50 @@ public class ChatActivity extends AppCompatActivity {
     private SpeechRecognizer mRecognizer = null;
     private View microphoneListening;
 
+    // Constants for GPT-3 API call
     private static final double TEMPERATURE = 0.7;
     private static final int NUM_OF_TOKENS = 1024;
     private static final String GPT_MODEL = "text-davinci-003";
     private static final String GATEWAY_URL = "https://api.openai.com/v1/completions";
 
+    // okhttp client to make API calls
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
-    OkHttpClient client = new OkHttpClient.Builder()
+    private OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(120, TimeUnit.SECONDS)
             .writeTimeout(120, TimeUnit.SECONDS)
             .readTimeout(120, TimeUnit.SECONDS)
             .build();
 
+    /**
+     * Launcher for requesting the RECORD_AUDIO permission.
+     */
+    private ActivityResultLauncher<String> mPermissionRequester = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(),
+            isGranted -> {
+                if (isGranted) {
+                    startSpeechRecognition();
+                } else {
+                    Toast.makeText(this, R.string.microphone_justification,
+                            Toast.LENGTH_LONG).show();
+                }
+            });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Set content view to chat_layout.xml
         setContentView(R.layout.chat_layout);
 
+        // Initialize UI elements
         messageList = new ArrayList<>();
-
         recyclerView =  findViewById(R.id.messages);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         messageAdapter = new MessagesAdapter(messageList);
         recyclerView.setAdapter(messageAdapter);
-
         ImageView send_btn = findViewById(R.id.send_btn);
         ImageView mic_btn = findViewById(R.id.microphone_btn);
         messageBox = findViewById(R.id.message_box);
-
-        send_btn.setOnClickListener(view -> {
-            String question = messageBox.getText().toString().trim();
-            messageBox.setText("");
-            addMessage(question,Message.SEND_BY_ME);
-            callGPTAPI(getGptPrompt(question));
-        });
-
-        mic_btn.setOnClickListener(view -> getPermissionsAndRecognizeSpeech());
 
         // Create a new microphone listening View
         LayoutInflater inflater = (LayoutInflater)getApplicationContext().getSystemService
@@ -80,18 +94,36 @@ public class ChatActivity extends AppCompatActivity {
         microphoneListening.setVisibility(View.INVISIBLE);
 
         // Set the layout parameters of the image
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         microphoneListening.setLayoutParams(params);
         addContentView(microphoneListening, params);
 
-        // Creates the tabs at the bottom of screen.
-        TabView nav = findViewById(R.id.bottom_nav);
-        nav.setOnNavigationItemSelectedListener(item -> {
+        // Send message button listener
+        send_btn.setOnClickListener(view -> {
+            String question = messageBox.getText().toString().trim();
+            messageBox.setText("");
+            if (question.equals("")) {
+                Toast.makeText(this, R.string.message_required, Toast.LENGTH_LONG).show();
+            } else {
+                addMessage(question,Message.SEND_BY_ME);
+                messageList.add(new Message(getString(R.string.typing_message),
+                        Message.SEND_BY_BOT));
+                callGPTAPI(getGptPrompt(question));
+            }
+        });
 
-            // Set tab contents based on selected item.
+        // Microphone button listener
+        mic_btn.setOnClickListener(view -> getPermissionsAndRecognizeSpeech());
+
+        // Get bottom navigation view and set OnNavigationItemSelectedListener
+        TabView nav = findViewById(R.id.bottom_nav); // Tabs at the bottom of screen.
+        nav.setOnNavigationItemSelectedListener(item -> {
+            Intent switchActivityIntent;
+            // Switch to the selected activity based on the selected item
             switch (item.getItemId()) {
                 case R.id.tab_profile:
-                    Intent switchActivityIntent = new Intent(this, ProfileActivity.class);
+                    switchActivityIntent = new Intent(this, ProfileActivity.class);
                     startActivity(switchActivityIntent);
                     finish();
                     return true;
@@ -103,10 +135,15 @@ public class ChatActivity extends AppCompatActivity {
                     finish();
                     return true;
                 default:
-                    Log.e(getString(R.string.error_tag), getString(R.string.unrecognized_nav_error) + item.getTitle());
+                    // Log error if tab item is not recognized
+                    Log.e(getString(R.string.error_tag),
+                            getString(R.string.unrecognized_nav_error) + item.getTitle());
             }
             return false;
         });
+
+        // send first Message
+        addMessage(getResources().getString(R.string.first_message), Message.SEND_BY_BOT);
 
     }
 
@@ -114,24 +151,53 @@ public class ChatActivity extends AppCompatActivity {
     public void onPause() {
         super.onPause();
         // Used to skip animation for transition
-        // learned from https://stackoverflow.com/questions/6972295/how-to-switch-activity-without-animation-in-android
+        // learned from https://stackoverflow.com/questions/6972295/how-to-switch-activity-
+        // without-animation-in-android
         overridePendingTransition(0, 0);
     }
 
+    /**
+     * Adds a new message to the message list with the given message and sender, and updates the
+     * adapter and recycler view. Runs on the UI thread
+     *
+     * @param message the message to add
+     * @param sendBy the sender of the message
+     */
     private void addMessage(String message, int sendBy){
         runOnUiThread(() -> {
             messageList.add(new Message(message, sendBy));
             messageAdapter.notifyDataSetChanged();
+            // Scroll to the last message
             recyclerView.smoothScrollToPosition(messageAdapter.getItemCount());
+            if (messageAdapter.currentMessage != null) {
+                messageAdapter.currentMessage.sendAccessibilityEvent(
+                        AccessibilityEvent.TYPE_VIEW_FOCUSED);
+                messageAdapter.currentMessage = null;
+            }
         });
     }
 
+    /**
+     * Removes the last message ("typing") from the message list and adds a response message
+     * with the given response text and sender
+     *
+     * @param response the response to add
+     */
     private void addResponse(String response){
+        // Remove "typing" message
         messageList.remove(messageList.size()-1);
         addMessage(response, Message.SEND_BY_BOT);
     }
 
-    private String getGptPrompt(String input) {
+    /**
+     * Returns the prompt to use for the GPT API given the user input. The prompt includes the
+     * user's name and a list of their struggles
+     *
+     * @param prompt the user's input
+     * @return the prompt to use for the GPT API
+     */
+    private String getGptPrompt(String prompt) {
+        // Get preferences for name and struggles context
         SharedPreferences pref = getSharedPreferences(ProfileActivity.PREFERENCES_KEY,MODE_PRIVATE);
         Set<String> struggles = pref.getStringSet(ProfileActivity.STRUGGLES_KEY, new HashSet<>());
         StringBuilder strugglesString = new StringBuilder();
@@ -140,14 +206,21 @@ public class ChatActivity extends AppCompatActivity {
         }
         String name = pref.getString(ProfileActivity.NAME_KEY, "anonymous");
 
-        return String.format(getString(R.string.gpt_prompt), name, name, strugglesString, name, input);
+        return String.format(getString(R.string.gpt_prompt), name, name, strugglesString,
+                name, prompt);
     }
 
-    // Heavily referencing code from https://github.com/TheoKanning/openai-java and https://github.com/AtikulSoftware/ChatGPT
+    /**
+     * Calls the GPT API with the given question. Then adds the response to the list when
+     * it arrives.
+     *
+     * @param question the question to ask the API
+     */
     private void callGPTAPI(String question){
-        // okhttp
-        messageList.add(new Message(getString(R.string.typing_message), Message.SEND_BY_BOT));
+        // Heavily referencing code from https://github.com/TheoKanning/openai-java and
+        // https://github.com/AtikulSoftware/ChatGPT
 
+        // Create a JSON object with the necessary parameters for the GPT API request
         JSONObject jsonBody = new JSONObject();
         try {
             jsonBody.put("model",GPT_MODEL);
@@ -158,6 +231,7 @@ public class ChatActivity extends AppCompatActivity {
             throw new RuntimeException(e);
         }
 
+        // Create a request with the JSON object
         RequestBody requestBody = RequestBody.create(jsonBody.toString(),JSON);
         Request request = new Request.Builder()
                 .url(GATEWAY_URL)
@@ -165,14 +239,20 @@ public class ChatActivity extends AppCompatActivity {
                 .post(requestBody)
                 .build();
 
+        // Enqueue the HTTP request asynchronously
         client.newCall(request).enqueue(new Callback() {
+
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                // Handle the case when the request fails by adding an error message
+                // to the list of responses
                 addResponse(String.format(getString(R.string.failed_response), e.getMessage()));
             }
 
             @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws
+                    IOException {
+                // Parse the response JSON and add the result to the list of responses
                 if (response.isSuccessful()){
                     JSONObject jsonObject = null;
                     try {
@@ -180,48 +260,54 @@ public class ChatActivity extends AppCompatActivity {
                         JSONArray jsonArray = jsonObject.getJSONArray("choices");
                         String result = jsonArray.getJSONObject(0).getString("text");
                         addResponse(result.trim());
+
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
                 } else {
-                    addResponse(String.format(getString(R.string.failed_response), response.body().toString()));
+                    // Handle the case when the request fails by adding an error message
+                    // to the list of responses
+                    addResponse(String.format(getString(R.string.failed_response),
+                            response.body().toString()));
                 }
             }
         });
     }
 
-    private ActivityResultLauncher<String> mPermissionRequester = registerForActivityResult(
-            new ActivityResultContracts.RequestPermission(),
-            isGranted -> {
-                if (isGranted) {
-                    startSpeechRecognition();
-                } else {
-                    Toast.makeText(this, R.string.microphone_justification, Toast.LENGTH_LONG).show();
-                }
-            });
-
+    /**
+     * Checks for RECORD_AUDIO permission and starts speech recognition if the permission
+     * is granted. Otherwise, requests the permission or displays a message explaining why the
+     * permission is needed.
+     */
     private void getPermissionsAndRecognizeSpeech() {
         if (getBaseContext().checkSelfPermission(Manifest.permission.RECORD_AUDIO)
                 == PackageManager.PERMISSION_GRANTED) {
+            // Permission is granted, start speech recognition
             startSpeechRecognition();
         } else if (shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO)) {
-            Toast.makeText(this,R.string.microphone_justification, Toast.LENGTH_LONG).show();
+            // If the user has previously denied the permission, show a message explaining why
+            // the permission is needed and request the permission again
+            Toast.makeText(this,R.string.microphone_justification,
+                    Toast.LENGTH_LONG).show();
             mPermissionRequester.launch(Manifest.permission.RECORD_AUDIO);
         } else {
-            // ask for permission
+            // Request the permission
             mPermissionRequester.launch(Manifest.permission.RECORD_AUDIO);
         }
     }
 
+    /**
+     * Starts the speech recognition process using the device's microphone.
+     */
     private void startSpeechRecognition() {
-        final TextView outputView = findViewById(R.id.message_box);
 
+        // Create a new speech recognizer if it hasn't been created before and set its listeners
         if (mRecognizer == null){
             mRecognizer = SpeechRecognizer.createSpeechRecognizer(getBaseContext());
             mRecognizer.setRecognitionListener(new RecognitionListener() {
                 @Override
                 public void onReadyForSpeech(Bundle bundle) {
-                    outputView.setText(R.string.listening);
+                    messageBox.setText(R.string.listening);
                     microphoneListening.setVisibility(View.VISIBLE);
                 }
 
@@ -239,7 +325,8 @@ public class ChatActivity extends AppCompatActivity {
 
                 @Override
                 public void onError(int i) {
-                    outputView.setText("");
+                    // reset state
+                    messageBox.setText("");
                     microphoneListening.setVisibility(View.INVISIBLE);
                     String errorString = getErrorString(i);
                     Toast.makeText(getBaseContext(), errorString, Toast.LENGTH_SHORT).show();
@@ -247,26 +334,30 @@ public class ChatActivity extends AppCompatActivity {
 
                 @Override
                 public void onResults(Bundle bundle) {
-                    ArrayList<String> texts = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                    // Get the speech results and update the message box
+                    ArrayList<String> texts = bundle.getStringArrayList(
+                            SpeechRecognizer.RESULTS_RECOGNITION);
                     if (texts.size() == 0) {
-                        outputView.setText("");
+                        messageBox.setText("");
                         return;
                     }
                     String text = texts.get(0);
-                    outputView.setText(text);
+                    messageBox.setText(text);
+                    // Hide microphone icon
                     microphoneListening.setVisibility(View.INVISIBLE);
-
                 }
 
                 @Override
                 public void onPartialResults(Bundle bundle) {
-                    ArrayList<String> texts = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                    // Get the partial speech recognition results and update the message box
+                    ArrayList<String> texts = bundle.getStringArrayList(
+                            SpeechRecognizer.RESULTS_RECOGNITION);
                     if (texts.size() == 0) {
-                        outputView.setText("");
+                        messageBox.setText("");
                         return;
                     }
                     String text = texts.get(0);
-                    outputView.setText(text);
+                    messageBox.setText(text);
                 }
 
                 @Override
@@ -277,14 +368,22 @@ public class ChatActivity extends AppCompatActivity {
 
         }
 
+        // Create an intent for speech recognition and set its parameters
         Intent recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 2);
         mRecognizer.startListening(recognizerIntent);
     }
 
+    /**
+     * Returns a string describing the error code.
+     *
+     * @param errorCode the error code to describe
+     * @return a string describing the error code
+     */
     private String getErrorString(int errorCode) {
         switch (errorCode) {
             case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:

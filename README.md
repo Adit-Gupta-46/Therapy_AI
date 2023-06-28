@@ -1,11 +1,9 @@
 # Application Title: Therapy AI
 
 ## Configuration Settings
-
-_Include any gradle or configuration settings that are required for your libraries or app to work_
-
 This application uses the GPT-3 api. Before using this app, go to local.properties and add the
-following text "apiKey=API_KEY", where API_KEY is the api key sent to Professor Bricker.
+following text "apiKey=API_KEY", where API_KEY is the api key generated from 
+https://platform.openai.com/account/api-keys.
 
 Since this app uses text-to-speech, following Henry's presentation in class, the compileSdkVersion
 in the app's gradle file has been set to 32. This has allowed the androidx.appcompat:appcompat: to 
@@ -16,21 +14,8 @@ developed by Square and is regarded to be secure, from my research. It supports 
 and "includes verification of the remote webserver with certificates and the privacy of data 
 exchanged with strong ciphers."
 
-## API Key
-
-_Let the course staff know whether or not your app requires an API Key and to whom it was sent
-via email_
-
-The api key I used was been emailed to Professor Bricker. 
-If you would like, it is also easy to generate an api key from OpenAI here: 
-https://platform.openai.com/account/api-keys
-
 ## Reading the Code:
-
-_Detail how you would like the person who grades your app's code to do so. This could include
-giving them a UML diagram, or what is the best order to read the application files in_
-
-When grading my app's code, I would appreciate if you could take the following steps:
+When grading my app's code, I would reccomend taking the following steps:
 
 1. Begin by reviewing the overall structure of the application, which is composed of three pages: 
 the profile page, the chat page, and the about page. These pages are primarily coded in the 
@@ -53,14 +38,3 @@ MessagesAdapter.java file.
 
 5. Finally, review the AboutActivity.java file, which sets the content view to the about_layout.xml
 file. This page displays general information about the application.
-
-## Other information
-
-_Anything else you think is relevant for us to use when testing your code._
-
-Since this app uses the microphone for speech-to-text, please ensure that the microphone is 
-enabled in settings and the google app is allowed to access the microphone, as mentioned in 
-Henry's presentation, if an emulator is being used for testing. Additionally, I've worked very hard
-to make sure everything functions in this app so please don't hesitate to reach out to me, either 
-by email (aditg46@uw.edu) or call/text (425-420-4933) if there are any issues in running the
-app for grading.
